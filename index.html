@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenRoute HK</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.4/babel.min.js"></script>
+    <style>
+        @keyframes scaleIn{from{transform:scale(0.4);opacity:0}to{transform:scale(1);opacity:1}}
+        .anim-scale{animation:scaleIn 0.5s ease-out}
+        @keyframes fadeSlide{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+        .anim-fade{animation:fadeSlide 0.2s ease-out}
+        @keyframes pulse2{0%,100%{opacity:1}50%{opacity:.5}}
+        .anim-pulse{animation:pulse2 2s infinite}
+        body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+    </style>
+</head>
+<body>
+
+<div id="root">
+    <p style="text-align:center;padding:40px;color:#888;font-family:sans-serif;">Loading GreenRoute HK... If this persists, check browser console (F12).</p>
+</div>
+
+<script>
+window.onerror = function(msg, src, line, col, err) {
+    var el = document.getElementById('root');
+    if (el) el.innerHTML = '<div style="padding:20px;font-family:monospace;"><h2 style="color:red;">Error Loading App</h2><p>' + msg + '</p><p>Line: ' + line + '</p><pre style="background:#f5f5f5;padding:10px;overflow:auto;font-size:12px;">' + (err && err.stack ? err.stack : '') + '</pre></div>';
+};
+</script>
+
+<script type="text/babel">
+const { useState } = React;
+
+/* ---- Simple Icon Component ---- */
+function Ic({ children, size = 16, className = '' }) {
+    return (
+        <span className={className} style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: size, height: size, fontSize: Math.round(size * 0.7), lineHeight: 1, flexShrink: 0
+        }}>{children}</span>
+    );
+}
+
+/* Icons as small components */
+const Leaf = (p) => <Ic {...p}>🌿</Ic>;
+const MapIc = (p) => <Ic {...p}>🗺️</Ic>;
+const Navigation = (p) => <Ic {...p}>🧭</Ic>;
+const Trophy = (p) => <Ic {...p}>🏆</Ic>;
+const BarChart3 = (p) => <Ic {...p}>📊</Ic>;
+const UserIcon = (p) => <Ic {...p}>👤</Ic>;
+const HomeIcon = (p) => <Ic {...p}>🏠</Ic>;
+const StarIcon = (p) => <Ic {...p}>⭐</Ic>;
+const MapPin = (p) => <Ic {...p}>📍</Ic>;
+const Bus = (p) => <Ic {...p}>🚌</Ic>;
+const Bike = (p) => <Ic {...p}>🚲</Ic>;
+const Clock = (p) => <Ic {...p}>🕐</Ic>;
+const Zap = (p) => <Ic {...p}>⚡</Ic>;
+const Target = (p) => <Ic {...p}>🎯</Ic>;
+const Medal = (p) => <Ic {...p}>🏅</Ic>;
+const Users = (p) => <Ic {...p}>👥</Ic>;
+const Share2 = (p) => <Ic {...p}>📤</Ic>;
+const Bell = (p) => <Ic {...p}>🔔</Ic>;
+const Settings = (p) => <Ic {...p}>⚙️</Ic>;
+const Gift = (p) => <Ic {...p}>🎁</Ic>;
+const TrendingDown = (p) => <Ic {...p}>📉</Ic>;
+const CheckCircle = (p) => <Ic {...p}>✅</Ic>;
+const ShieldCheck = (p) => <Ic {...p}>🛡️</Ic>;
+const Flame = (p) => <Ic {...p}>🔥</Ic>;
+const Calendar = (p) => <Ic {...p}>📅</Ic>;
+const Award = (p) => <Ic {...p}>🏆</Ic>;
+const Heart = (p) => <Ic {...p}>❤️</Ic>;
+const Eye = (p) => <Ic {...p}>👁️</Ic>;
+const RefreshCw = (p) => <Ic {...p}>♻️</Ic>;
+const CreditCard = (p) => <Ic {...p}>💳</Ic>;
+const Plus = (p) => <Ic {...p}>➕</Ic>;
+const ArrowLeft = (p) => <Ic {...p}>←</Ic>;
+const ChevronRight = (p) => <Ic {...p}>›</Ic>;
+
+/* ---- Screen IDs ---- */
+const S = {
+    SPLASH: 'splash', OB1: 'ob1', OB2: 'ob2', OB3: 'ob3',
+    SIGNUP: 'signup', OCTOPUS: 'octopus', HOME: 'home',
+    MAP: 'map', ROUTES: 'routes', CARBON: 'carbon',
+    REPORT: 'report', REWARDS: 'rewards', CHALLENGES: 'challenges',
+    LEADER: 'leader', PROFILE: 'profile', FLOWMAP: 'flowmap',
+};
+
+/* ---- NavBar ---- */
+function NavBar({ active, go }) {
+    const items = [
+        { id: S.HOME, icon: HomeIcon, label: 'Home' },
+        { id: S.MAP, icon: MapIc, label: 'Map' },
+        { id: S.CARBON, icon: BarChart3, label: 'Carbon' },
+        { id: S.REWARDS, icon: Gift, label: 'Rewards' },
+        { id: S.PROFILE, icon: UserIcon, label: 'Profile' },
+    ];
+    return (
+        <div className="flex justify-around items-center bg-white border-t border-gray-200 py-2 px-1 flex-shrink-0">
+            {items.map(function(item) {
+                return (
+                    <button key={item.id} onClick={function(){go(item.id);}}
+                        className={active === item.id ? 'flex flex-col items-center gap-0.5 text-green-600' : 'flex flex-col items-center gap-0.5 text-gray-400'}>
+                        <item.icon size={17} />
+                        <span style={{ fontSize: 10 }}>{item.label}</span>
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
+
+/* ---- Splash ---- */
+function SplashScreen({ go }) {
+    return (
+        <div className="flex flex-col items-center justify-center text-white p-6 bg-gradient-to-b from-green-600 to-green-800 cursor-pointer"
+            style={{ minHeight: 500 }} onClick={function(){go(S.OB1);}}>
+            <div className="anim-scale">
+                <div className="bg-white rounded-full p-5 mb-4"><Leaf size={44} /></div>
+            </div>
+            <h1 className="text-2xl font-bold mb-1">GreenRoute HK</h1>
+            <p className="text-green-200 text-sm text-center mb-10">Low-Carbon Commuting for a Sustainable Hong Kong</p>
+            <p className="text-green-300 text-xs anim-pulse">Tap to continue →</p>
+        </div>
+    );
+}
+
+/* ---- Onboarding ---- */
+function Onboard({ go, step }) {
+    var steps = [
+        { icon: MapIc, bgColor: 'bg-green-100', title: 'Compare Carbon Routes', desc: 'See estimated CO₂ for every route. Choose the greenest path to your destination.', next: S.OB2, btn: 'Next' },
+        { icon: BarChart3, bgColor: 'bg-blue-100', title: 'Track Your Footprint', desc: 'Weekly carbon reports across travel, food, clothing & living. Auto-sync with Octopus card.', next: S.OB3, btn: 'Next' },
+        { icon: Trophy, bgColor: 'bg-yellow-100', title: 'Earn & Redeem Rewards', desc: 'Earn points for green commutes. Complete challenges. Redeem at 7-Eleven, Wellcome & more.', next: S.SIGNUP, btn: 'Get Started' },
+    ];
+    var data = steps[step];
+    var IconComp = data.icon;
+    return (
+        <div className="flex flex-col items-center justify-between p-6 bg-white" style={{ minHeight: 500 }}>
+            <div className="flex-1 flex flex-col items-center justify-center">
+                <div className={data.bgColor + ' rounded-full p-6 mb-4'}>
+                    <IconComp size={38} />
+                </div>
+                <h2 className="text-lg font-bold text-gray-800 mb-2">{data.title}</h2>
+                <p className="text-gray-500 text-sm text-center leading-relaxed">{data.desc}</p>
+                <div className="flex gap-1.5 mt-6">
+                    {[0, 1, 2].map(function(i) {
+                        return <div key={i} className={i === step ? 'w-6 h-1.5 rounded-full bg-green-600' : 'w-6 h-1.5 rounded-full bg-gray-200'} />;
+                    })}
+                </div>
+            </div>
+            <button onClick={function(){go(data.next);}} className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold text-sm mt-4">{data.btn}</button>
+        </div>
+    );
+}
+
+/* ---- Signup ---- */
+function SignupScreen({ go }) {
+    return (
+        <div className="flex flex-col p-6 bg-white" style={{ minHeight: 500 }}>
+            <h2 className="text-xl font-bold text-gray-800 mb-1 mt-2">Create Account</h2>
+            <p className="text-gray-400 text-xs mb-5">Join Hong Kong's green commuting community</p>
+            <div className="space-y-3 flex-1">
+                {[['Full Name', 'e.g. Chan Tai Man'], ['Email', 'email@example.com'], ['Password', '••••••••']].map(function(pair) {
+                    return (
+                        <div key={pair[0]}>
+                            <label className="text-xs text-gray-500 mb-1 block">{pair[0]}</label>
+                            <div className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-400 bg-gray-50">{pair[1]}</div>
+                        </div>
+                    );
+                })}
+                <div>
+                    <label className="text-xs text-gray-500 mb-1 block">I am a...</label>
+                    <div className="flex gap-2 flex-wrap">
+                        {['Student', 'Worker', 'Retiree', 'Parent', 'Other'].map(function(t) {
+                            return (
+                                <span key={t} className={t === 'Student' ? 'text-xs px-3 py-1.5 rounded-full border bg-green-100 border-green-400 text-green-700' : 'text-xs px-3 py-1.5 rounded-full border border-gray-200 text-gray-500'}>{t}</span>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+            <button onClick={function(){go(S.OCTOPUS);}} className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold text-sm mt-4">Continue</button>
+            <p className="text-center text-xs text-gray-400 mt-2">Already have an account? <span className="text-green-600 font-medium">Log in</span></p>
+        </div>
+    );
+}
+
+/* ---- Octopus ---- */
+function OctopusScreen({ go }) {
+    return (
+        <div className="flex flex-col items-center justify-between p-6 bg-white" style={{ minHeight: 500 }}>
+            <div className="flex-1 flex flex-col items-center justify-center">
+                <div className="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-6 mb-4"><CreditCard size={44} /></div>
+                <h2 className="text-lg font-bold text-gray-800 mb-2 text-center">Link Your Octopus Card</h2>
+                <p className="text-gray-500 text-sm text-center mb-4">Auto-track MTR, bus & minibus trips and sync carbon data seamlessly.</p>
+                <div className="bg-gray-50 rounded-xl p-3 w-full space-y-2">
+                    {['Auto-detect public transport trips', 'Calculate carbon saved vs. driving', 'Earn reward points automatically'].map(function(t) {
+                        return (
+                            <div key={t} className="flex items-center gap-2"><CheckCircle size={15} /><span className="text-xs text-gray-600">{t}</span></div>
+                        );
+                    })}
+                </div>
+            </div>
+            <div className="w-full space-y-2 mt-4">
+                <button onClick={function(){go(S.HOME);}} className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold text-sm">Link Octopus Card</button>
+                <button onClick={function(){go(S.HOME);}} className="w-full text-gray-400 py-2 text-sm">Skip for now</button>
+            </div>
+        </div>
+    );
+}
+
+/* ---- Home ---- */
+function HomeScreen({ go }) {
+    var quickBtns = [
+        { id: S.MAP, icon: MapIc, label: 'Plan Route' },
+        { id: S.CARBON, icon: BarChart3, label: 'My Carbon' },
+        { id: S.CHALLENGES, icon: Target, label: 'Challenges' },
+        { id: S.LEADER, icon: Medal, label: 'Rank' },
+    ];
+    return (
+        <div className="flex flex-col bg-gray-50" style={{ minHeight: 500 }}>
+            <div className="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 pt-3 pb-5 rounded-b-2xl flex-shrink-0">
+                <div className="flex justify-between items-center mb-3">
+                    <div><p className="text-green-200" style={{ fontSize: 11 }}>Good morning,</p><h2 className="font-bold text-lg">Tai Man 👋</h2></div>
+                    <Bell size={17} />
+                </div>
+                <div className="rounded-xl p-3 flex items-center justify-between" style={{backgroundColor:'rgba(255,255,255,0.2)'}}>
+                    <div><p style={{ fontSize: 10 }} className="text-green-100">This Week's Carbon Saved</p><p className="text-2xl font-bold">3.2 <span className="text-sm font-normal">kg CO₂</span></p></div>
+                    <div className="text-right"><p style={{ fontSize: 10 }} className="text-green-100">Points</p><p className="text-xl font-bold">⭐ 850</p></div>
+                </div>
+            </div>
+            <div className="flex-1 px-4 pt-3 space-y-2.5 overflow-y-auto pb-1">
+                <div className="flex gap-2">
+                    {quickBtns.map(function(b) {
+                        var BIcon = b.icon;
+                        return (
+                            <button key={b.id} onClick={function(){go(b.id);}} className="flex-1 bg-white rounded-xl p-2.5 shadow-sm border border-gray-100 flex flex-col items-center gap-1">
+                                <BIcon size={20} /><span style={{ fontSize: 10 }} className="font-medium text-gray-700">{b.label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+                <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+                    <div className="flex justify-between items-center mb-1.5"><p className="text-sm font-semibold text-gray-800">🔥 Daily Challenge</p><span className="text-xs text-orange-500 font-medium">+50 pts</span></div>
+                    <p className="text-xs text-gray-500 mb-2">Take 1 public transport trip today</p>
+                    <div className="w-full bg-gray-100 rounded-full h-2"><div className="bg-green-500 rounded-full h-2" style={{ width: '0%' }} /></div>
+                    <p style={{ fontSize: 10 }} className="text-gray-400 mt-1">0 / 1 completed</p>
+                </div>
+                <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+                    <p className="text-sm font-semibold text-gray-800 mb-2">📊 Quick Stats</p>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="bg-green-50 rounded-lg p-2"><p className="text-lg font-bold text-green-600">12</p><p style={{ fontSize: 10 }} className="text-gray-500">Green Trips</p></div>
+                        <div className="bg-blue-50 rounded-lg p-2"><p className="text-lg font-bold text-blue-600">5</p><p style={{ fontSize: 10 }} className="text-gray-500">Badges</p></div>
+                        <div className="bg-yellow-50 rounded-lg p-2"><p className="text-lg font-bold text-yellow-600">#28</p><p style={{ fontSize: 10 }} className="text-gray-500">Ranking</p></div>
+                    </div>
+                </div>
+                <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+                    <p style={{ fontSize: 10 }} className="text-green-700 font-medium">💡 Tip of the Day</p>
+                    <p style={{ fontSize: 10 }} className="text-green-600 mt-1">Walking 2km saves ~0.4kg CO₂ vs taxi. Try walking to nearby MTR!</p>
+                </div>
+            </div>
+            <NavBar active={S.HOME} go={go} />
+        </div>
+    );
+}
+
+/* ---- Map ---- */
+function MapScreen({ go }) {
+    return (
+        <div className="flex flex-col bg-gray-50" style={{ minHeight: 500 }}>
+            <div className="bg-white px-4 pt-3 pb-3 border-b border-gray-100 flex-shrink-0">
+                <h3 className="font-bold text-gray-800 text-sm mb-2">🗺️ Plan Your Route</h3>
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2"><div className="w-2 h-2 bg-green-500 rounded-full" /><span className="text-xs text-gray-500 flex-1">HKUST, Clear Water Bay</span></div>
+                    <div className="flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2"><div className="w-2 h-2 bg-red-500 rounded-full" /><span className="text-xs text-gray-500 flex-1">Central, Hong Kong</span></div>
+                </div>
+            </div>
+            <div className="flex-1 relative cursor-pointer" style={{ background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 40%, #6ee7b7 100%)' }} onClick={function(){go(S.ROUTES);}}>
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-white rounded-xl p-5 shadow-lg text-center" style={{backgroundColor:'rgba(255,255,255,0.95)'}}>
+                        <MapPin size={30} className="mx-auto mb-2" />
+                        <p className="text-xs text-gray-700 font-semibold">Interactive Map View</p>
+                        <p style={{ fontSize: 10 }} className="text-gray-400 mt-1">🌿 Green spaces highlighted</p>
+                        <p style={{ fontSize: 10 }} className="text-gray-400">♻️ Recycling points marked</p>
+                        <p style={{ fontSize: 10 }} className="text-green-600 mt-2 font-semibold">Tap to compare routes →</p>
+                    </div>
+                </div>
+                <div className="absolute top-3 right-3 bg-white rounded-lg p-1.5 shadow"><Navigation size={14} /></div>
+                <div className="absolute bottom-20 left-4 bg-green-600 text-white rounded-full px-2.5 py-1 flex items-center gap-1" style={{ fontSize: 10 }}>🌿 Kowloon Park</div>
+                <div className="absolute bottom-28 right-4 bg-blue-500 text-white rounded-full px-2.5 py-1 flex items-center gap-1" style={{ fontSize: 10 }}>♻️ Recycle Pt</div>
+                <div className="absolute top-16 left-6 bg-green-500 text-white rounded-full px-2.5 py-1 flex items-center gap-1" style={{ fontSize: 10 }}>🌿 Victoria Park</div>
+            </div>
+            <NavBar active={S.MAP} go={go} />
+        </div>
+    );
+}
+
+/* ---- Route Results ---- */
+function RouteResults({ go }) {
+    var routes = [
+        { mode: 'MTR + Walk', icon: Bus, time: '52 min', co2: '0.8 kg', pts: '+40', best: true, bad: false },
+        { mode: 'Bus 91M → MTR', icon: Bus, time: '65 min', co2: '1.1 kg', pts: '+30', best: false, bad: false },
+        { mode: 'Cycle + MTR', icon: Bike, time: '58 min', co2: '0.5 kg', pts: '+55', best: false, bad: false },
+        { mode: 'Taxi', icon: Navigation, time: '35 min', co2: '4.2 kg', pts: '0', best: false, bad: true },
+    ];
+    return (
+        <div className="flex flex-col bg-gray-50" style={{ minHeight: 500 }}>
+            <div className="bg-white px-4 pt-3 pb-2 border-b border-gray-100 flex items-center gap-2 flex-shrink-0">
+                <button onClick={function(){go(S.MAP);}}><ArrowLeft size={17} /></button>
+                <div><h3 className="font-bold text-gray-800 text-sm">Route Comparison</h3><p style={{ fontSize: 10 }} className="text-gray-400">HKUST → Central</p></div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pt-3 space-y-2 pb-2">
+                {routes.map(function(r, i) {
+                    var RIcon = r.icon;
+                    return (
+                        <div key={i} className={r.best ? 'bg-white rounded-xl p-3 border border-green-400 shadow-md relative' : 'bg-white rounded-xl p-3 border border-gray-100 relative'}>
+                            {r.best && <span className="absolute -top-2 right-3 bg-green-500 text-white px-2 py-0.5 rounded-full" style={{ fontSize: 10 }}>🌿 Greenest</span>}
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className={r.best ? 'p-2 rounded-lg bg-green-100' : 'p-2 rounded-lg bg-gray-100'}><RIcon size={16} /></div>
+                                    <div><p className="text-sm font-semibold text-gray-800">{r.mode}</p><p style={{ fontSize: 10 }} className="text-gray-400 flex items-center gap-1"><Clock size={9} /> {r.time}</p></div>
+                                </div>
+                                <div className="text-right">
+                                    <p className={r.bad ? 'text-sm font-bold text-red-500' : 'text-sm font-bold text-green-600'}>{r.co2} CO₂</p>
+                                    <p style={{ fontSize: 10 }} className={r.pts === '0' ? 'font-medium text-gray-400' : 'font-medium text-yellow-600'}>{r.pts} pts</p>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+                <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-center">
+                    <p style={{ fontSize: 11 }} className="text-green-700 font-medium">Choosing MTR + Walk saves 3.4 kg CO₂ vs Taxi 🌍</p>
+                    <p style={{ fontSize: 10 }} className="text-green-600">That's equivalent to saving 1 tree for a day!</p>
+                </div>
+                <button onClick={function(){go(S.HOME);}} className="w-full bg-green-600 text-white py-2.5 rounded-xl text-sm font-semibold">Select Greenest Route</button>
+            </div>
+            <NavBar active={S.MAP} go={go} />
+        </div>
+    );
+}
+
+/* ---- Carbon Dashboard ---- */
+function CarbonDash({ go }) {
+    var categories = [
+        { label: 'Travel', value: 8.2, pct: 44, barColor: 'bg-green-500' },
+        { label: 'Food', value: 5.5, pct: 30, barColor: 'bg-orange-500' },
+        { label: 'Living', value: 3.3, pct: 18, barColor: 'bg-blue-500' },
+        { label: 'Clothing', value: 1.5, pct: 8, barColor: 'bg-purple-500' },
+    ];
+    var dailyData = [3.2, 2.8, 2.1, 3.5, 2.9, 2.2, 1.8];
+    var dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    return (
+        <div className="flex flex-col bg-gray-50" style={{ minHeight: 500 }}>
+            <div className="bg-white px-4 pt-3 pb-2 border-b border-gray-100 flex-shrink-0">
+                <h3 className="font-bold text-gray-800 text-sm">📊 Your Carbon Footprint</h3>
+                <p style={{ fontSize: 10 }} className="text-gray-400">Week of 14 – 20 Apr 2026</p>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pt-3 space-y-2.5 pb-2">
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center">
+                    <p style={{ fontSize: 10 }} className="text-gray-500 mb-1">Weekly Total</p>
+                    <p className="text-3xl font-bold text-gray-800">18.5 <span className="text-sm font-normal text-gray-400">kg CO₂</span></p>
+                    <div className="flex items-center justify-center gap-1 mt-1"><TrendingDown size={13} /><span style={{ fontSize: 11 }} className="text-green-600 font-medium">12% less than last week</span></div>
+                </div>
+                <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+                    <p style={{ fontSize: 11 }} className="font-semibold text-gray-700 mb-2">Breakdown by Category</p>
+                    {categories.map(function(cat) {
+                        return (
+                            <div key={cat.label} className="mb-2">
+                                <div className="flex justify-between mb-0.5" style={{ fontSize: 10 }}><span className="text-gray-600">{cat.label}</span><span className="text-gray-500">{cat.value} kg ({cat.pct}%)</span></div>
+                                <div className="w-full bg-gray-100 rounded-full h-1.5"><div className={cat.barColor + ' rounded-full h-1.5'} style={{ width: cat.pct + '%' }} /></div>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+                    <p style={{ fontSize: 11 }} className="font-semibold text-gray-700 mb-2">Daily Trend (kg CO₂)</p>
+                    <div className="flex items-end gap-1 justify-between px-1" style={{ height: 56 }}>
+                        {dailyData.map(function(v, i) {
+                            return (
+                                <div key={i} className="flex flex-col items-center gap-0.5 flex-1">
+                                    <div className="bg-green-400 rounded-sm w-full" style={{ height: ((v / 4) * 48) + 'px' }} />
+                                    <span style={{ fontSize: 9 }} className="text-gray-400">{dayLabels[i]}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+                <button onClick={function(){go(S.REPORT);}} className="w-full bg-green-600 text-white py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-1"><Eye size={14} /> View Full Weekly Report</button>
+                <div className="flex gap-2">
+                    <button className="flex-1 bg-white border border-gray-200 rounded-xl py-2 text-xs text-gray-600 flex items-center justify-center gap-1"><Plus size={12} /> Log Activity</button>
+                    <button className="flex-1 bg-white border border-gray-200 rounded-xl py-2 text-xs text-gray-600 flex items-center justify-center gap-1"><Share2 size={12} /> Share Report</button>
+                </div>
+            </div>
+            <NavBar active={S.CARBON} go={go} />
+        </div>
+    );
+}
+
+/* ---- Weekly Report ---- */
+function WeeklyReport({ go }) {
+    var insights = [
+        { icon: CheckCircle, text: 'Travel emissions dropped 18% — great job using MTR!' },
+        { icon: Zap, text: 'Food emissions rose slightly. Try 1 veggie meal/day to save ~1.2kg.' },
+        { icon: Heart, text: 'You walked 14km this week — equivalent to planting 2 trees!' },
+    ];
+    return (
+        <div className="flex flex-col bg-gray-50" style={{ minHeight: 500 }}>
+            <div className="bg-white px-4 pt-3 pb-2 border-b border-gray-100 flex items-center gap-2 flex-shrink-0">
+                <button onClick={function(){go(S.CARBON);}}><ArrowLeft size={17} /></button>
+                <h3 className="font-bold text-gray-800 text-sm">📋 Weekly Carbon Report</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pt-3 space-y-2.5 pb-4">
+                <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 text-white text-center">
+                    <p style={{ fontSize: 10 }} className="text-green-100">Week 14 – 20 Apr 2026</p>
+                    <p className="text-3xl font-bold mt-1">18.5 kg CO₂</p>
+                    <p style={{ fontSize: 10 }} className="text-green-200 mt-1">HK Median: 25.3 kg · You're 27% below! 🎉</p>
+                </div>
+                <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+                    <p style={{ fontSize: 11 }} className="font-semibold text-gray-700 mb-2">🔍 Key Insights</p>
+                    <div className="space-y-2">
+                        {insights.map(function(item, i) {
+                            var IIcon = item.icon;
+                            return (
+                                <div key={i} className="flex items-start gap-2"><IIcon size={13} /><p style={{ fontSize: 11 }} className="text-gray-600">{item.text}</p></div>
+                            );
+                        })}
+                    </div>
+                </div>
+                <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+                    <p style={{ fontSize: 11 }} className="font-semibold text-gray-700 mb-2">🆚 vs Last Week</p>
+                    <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-green-50 rounded-lg p-2 text-center"><p className="text-sm font-bold text-green-600">↓ 12%</p><p style={{ fontSize: 10 }} className="text-gray-500">Total CO₂</p></div>
+                        <div className="bg-green-50 rounded-lg p-2 text-center"><p className="text-sm font-bold text-green-600">↑ 3</p><p style={{ fontSize: 10 }} className="text-gray-500">Green Trips</p></div>
+                    </div>
+                </div>
+                <div className="bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+                    <p style={{ fontSize: 11 }} className="font-semibold text-gray-700 mb-2">🌍 Your Impact Equivalency</p>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                        <div className="bg-gray-50 rounded-lg p-2"><span className="text-lg">🌳</span><p style={{ fontSize: 10 }} className="font-bold text-gray-700">2 Trees</p><p style={{ fontSize: 9 }} className="text-gray-400">planted</p></div>
+                        <div className="bg-gray-50 rounded-lg p-2"><span className="text-lg">💡</span><p style={{ fontSize: 10 }} className="font-bold text-gray-700">8 hrs</p><p style={{ fontSize: 9 }} className="text-gray-400">LED saved</p></div>
+                        <div className="bg-gray-50 rounded-lg p-2"><span className="text-lg">🚗</span><p style={{ fontSize: 10 }} className="font-bold text-gray-700">12 km</p><p style={{ fontSize: 9 }} className="text-gray-400">driving avoided</p></div>
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    <button className="flex-1 bg-green-600 text-white py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1"><Share2 size={12} /> Share</button>
+                    <button className="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1"><Users size={12} /> Compare Friends</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+/* ---- Rewards ---- */
+function RewardsScreen({ go }) {
+    var rewards = [
+        { emoji: '🏪', name: '7-Eleven $10 Coupon', pts: 200 },
+        { emoji: '🛒', name: 'Wellcome $20 Voucher', pts: 400 },
+        { emoji: '🍱', name: 'Fairwood Meal Discount', pts: 300 },
+        { emoji: '🚲', name: 'LocoBike 30-min Free', pts: 150 },
+        { emoji: '👜', name: 'Eco Tote Bag', pts: 500 },
+        { emoji: '🌳', name: 'Plant a Tree Badge', pts: 100 },
+    ];
+    return (
+        <div className="flex flex-col bg-gray-50" style={{ minHeight: 500 }}>
+            <div className="bg-gradient-to-r from-yellow-500 to-orange-500 px-4 pt-3 pb-4 rounded-b-2xl text-white flex-shrink-0">
+                <h3 className="font-bold text-sm mb-1">🎁 My Rewards</h3>
+                <div className="rounded-xl p-3 flex items-center justify-between" style={{backgroundColor:'rgba(255,255,255,0.2)'}}>
+                    <div><p style={{ fontSize: 10 }} className="text-yellow-100">Available Points</p><p className="text-2xl font-bold">⭐ 850</p></div>
+                    <button className="bg-white text-orange-600 text-xs font-bold px-3 py-1.5 rounded-lg">History</button>
+                </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pt-3 space-y-2 pb-2">
+                <p style={{ fontSize: 11 }} className="font-semibold text-gray-700">Redeem Rewards</p>
+                {rewards.map(function(r, i) {
+                    var canRedeem = 850 >= r.pts;
+                    return (
+                        <div key={i} className="bg-white rounded-xl p-3 border border-gray-100 flex items-center justify-between">
+                            <div className="flex items-center gap-2"><span className="text-xl">{r.emoji}</span><div><p className="text-sm font-medium text-gray-800">{r.name}</p><p style={{ fontSize: 10 }} className="text-yellow-600">⭐ {r.pts} pts</p></div></div>
+                            <button className={canRedeem ? 'text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-600 text-white' : 'text-xs font-semibold px-3 py-1.5 rounded-lg bg-gray-100 text-gray-400'}>{canRedeem ? 'Redeem' : 'Locked'}</button>
+                        </div>
+                    );
+                })}
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3"><p style={{ fontSize: 10 }} className="text-yellow-700 text-center">💡 Invite a friend to earn +100 bonus points!</p></div>
+            </div>
+            <NavBar active={S.REWARDS} go={go} />
+        </div>
+    );
+}
+
+/* ---- Challenges ---- */
+function ChallengesScreen({ go }) {
+    var challenges = [
+        { icon: Flame, label: 'Daily Challenge', title: 'Take 1 public transport trip', pts: '+50 pts', pct: 0, prog: '0 / 1', borderCls: 'border-orange-200', barCls: 'bg-orange-500' },
+        { icon: Calendar, label: 'Weekly Challenge', title: 'Complete 5 low-carbon commutes', pts: '+150 pts', pct: 60, prog: '3 / 5', borderCls: 'border-blue-200', barCls: 'bg-blue-500' },
+        { icon: Award, label: 'Monthly Challenge', title: 'Use public transport for work 4 weeks', pts: '+500 pts + Gold Badge', pct: 25, prog: '1 / 4 weeks', borderCls: 'border-purple-200', barCls: 'bg-purple-500' },
+    ];
+    var badges = [
+        { emoji: '🌱', label: 'First Trip', earned: true },
+        { emoji: '🚌', label: '10 Bus Rides', earned: true },
+        { emoji: '🚶', label: '50km Walked', earned: true },
+        { emoji: '🌍', label: 'Eco Warrior', earned: false },
+        { emoji: '🔥', label: '30-Day Streak', earned: false },
+    ];
+    return (
+        <div className="flex flex-col bg-gray-50" style={{ minHeight: 500 }}>
+            <div className="bg-white px-4 pt-3 pb-2 border-b border-gray-100 flex items-center gap-2 flex-shrink-0">
+                <button onClick={function(){go(S.HOME);}}><ArrowLeft size={17} /></button>
+                <h3 className="font-bold text-gray-800 text-sm">🏆 Challenges & Badges</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pt-3 space-y-3 pb-2">
+                {challenges.map(function(ch, i) {
+                    var CIcon = ch.icon;
+                    return (
+                        <div key={i}>
+                            <p style={{ fontSize: 11 }} className="font-semibold text-gray-700 mb-1.5 flex items-center gap-1"><CIcon size={12} /> {ch.label}</p>
+                            <div className={'bg-white rounded-xl p-3 border ' + ch.borderCls}>
+                                <p className="text-sm font-medium text-gray-800">{ch.title}</p>
+                                <p style={{ fontSize: 10 }} className="text-yellow-600 mb-2">{ch.pts}</p>
+                                <div className="w-full bg-gray-100 rounded-full h-2"><div className={ch.barCls + ' rounded-full h-2'} style={{ width: ch.pct + '%' }} /></div>
+                                <p style={{ fontSize: 10 }} className="text-gray-400 mt-1">{ch.prog}</p>
+                            </div>
+                        </div>
+                    );
+                })}
+                <div>
+                    <p style={{ fontSize: 11 }} className="font-semibold text-gray-700 mb-1.5">🏅 My Badges</p>
+                    <div className="flex gap-2 flex-wrap">
+                        {badges.map(function(b, i) {
+                            return (
+                                <div key={i} className={b.earned ? 'flex flex-col items-center p-2 rounded-xl border bg-white border-green-200' : 'flex flex-col items-center p-2 rounded-xl border bg-gray-100 border-gray-200 opacity-40'} style={{ width: 56 }}>
+                                    <span className="text-lg">{b.emoji}</span><span style={{ fontSize: 9 }} className="text-gray-600 text-center leading-tight mt-0.5">{b.label}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+            <NavBar active={S.HOME} go={go} />
+        </div>
+    );
+}
+
+/* ---- Leaderboard ---- */
+function LeaderboardScreen({ go }) {
+    var top3 = [
+        { medal: '🥈', name: 'Wing', kg: '15.2', big: false },
+        { medal: '🥇', name: 'Mei Ling', kg: '22.1', big: true },
+        { medal: '🥉', name: 'Jason', kg: '12.8', big: false },
+    ];
+    var others = [
+        { rank: 4, name: 'Siu Ming', kg: '11.4 kg', you: false },
+        { rank: 5, name: 'Amy C.', kg: '10.9 kg', you: false },
+        { rank: 28, name: 'You (Tai Man)', kg: '3.2 kg', you: true },
+    ];
+    return (
+        <div className="flex flex-col bg-gray-50" style={{ minHeight: 500 }}>
+            <div className="bg-white px-4 pt-3 pb-2 border-b border-gray-100 flex items-center gap-2 flex-shrink-0">
+                <button onClick={function(){go(S.HOME);}}><ArrowLeft size={17} /></button>
+                <h3 className="font-bold text-gray-800 text-sm">🏆 Leaderboard</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto pb-1">
+                <div className="flex gap-1 px-4 py-2">
+                    {['Friends', 'School', 'Community', 'Global'].map(function(t, i) {
+                        return <button key={t} className={i === 0 ? 'flex-1 text-xs py-1.5 rounded-lg font-medium bg-green-600 text-white' : 'flex-1 text-xs py-1.5 rounded-lg font-medium bg-gray-100 text-gray-500'}>{t}</button>;
+                    })}
+                </div>
+                <div className="px-4 mb-3 flex items-end justify-center gap-4">
+                    {top3.map(function(p, i) {
+                        return (
+                            <div key={i} className={i === 1 ? 'text-center -mt-3' : 'text-center'}>
+                                <div className={i === 1 ? 'w-12 h-12 border-2 border-yellow-400 bg-yellow-100 text-lg rounded-full mx-auto mb-1 flex items-center justify-center' : 'w-10 h-10 bg-gray-100 text-sm rounded-full mx-auto mb-1 flex items-center justify-center'}>{p.medal}</div>
+                                <p style={{ fontSize: 10 }} className="font-medium text-gray-700">{p.name}</p>
+                                <p style={{ fontSize: 10 }} className="text-green-600 font-bold">{p.kg} kg</p>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div className="px-4 space-y-1.5">
+                    {others.map(function(p, i) {
+                        return (
+                            <div key={i} className={p.you ? 'flex items-center justify-between p-2.5 rounded-xl bg-green-50 border border-green-300' : 'flex items-center justify-between p-2.5 rounded-xl bg-white border border-gray-100'}>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold text-gray-400 w-6">#{p.rank}</span>
+                                    <div className="w-7 h-7 bg-gray-200 rounded-full flex items-center justify-center" style={{ fontSize: 10 }}>{p.you ? '🙋' : '👤'}</div>
+                                    <span className={p.you ? 'text-sm font-medium text-green-700' : 'text-sm font-medium text-gray-700'}>{p.name}</span>
+                                </div>
+                                <span className="text-xs font-bold text-green-600">{p.kg}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div className="px-4 mt-3"><div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center"><p style={{ fontSize: 10 }} className="text-blue-700">Save 8.2 kg more to reach Top 10! 💪</p></div></div>
+            </div>
+            <NavBar active={S.HOME} go={go} />
+        </div>
+    );
+}
+
+/* ---- Profile ---- */
+function ProfileScreen({ go }) {
+    var menuItems = [
+        { icon: CreditCard, label: 'Octopus Card', sub: 'Linked ✓' },
+        { icon: Users, label: 'Invite Friends', sub: 'Earn +100 pts per invite' },
+        { icon: Bell, label: 'Notifications', sub: 'Daily challenge reminders' },
+        { icon: ShieldCheck, label: 'Privacy', sub: 'Manage data sharing' },
+        { icon: Settings, label: 'Settings', sub: 'Language, units, account' },
+    ];
+    return (
+        <div className="flex flex-col bg-gray-50" style={{ minHeight: 500 }}>
+            <div className="bg-white px-4 pt-4 pb-4 border-b border-gray-100 text-center flex-shrink-0">
+                <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-2 flex items-center justify-center text-2xl">🙋</div>
+                <h3 className="font-bold text-gray-800">Chan Tai Man</h3>
+                <p style={{ fontSize: 10 }} className="text-gray-400">Student · HKUST · Joined Mar 2026</p>
+                <div className="flex justify-center gap-6 mt-3">
+                    <div className="text-center"><p className="text-lg font-bold text-green-600">3.2</p><p style={{ fontSize: 10 }} className="text-gray-400">kg saved</p></div>
+                    <div className="text-center"><p className="text-lg font-bold text-yellow-600">850</p><p style={{ fontSize: 10 }} className="text-gray-400">points</p></div>
+                    <div className="text-center"><p className="text-lg font-bold text-blue-600">5</p><p style={{ fontSize: 10 }} className="text-gray-400">badges</p></div>
+                </div>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pt-3 space-y-2 pb-2">
+                {menuItems.map(function(item, i) {
+                    var MIcon = item.icon;
+                    return (
+                        <div key={i} className="bg-white rounded-xl p-3 border border-gray-100 flex items-center justify-between">
+                            <div className="flex items-center gap-3"><MIcon size={17} /><div><p className="text-sm font-medium text-gray-800">{item.label}</p><p style={{ fontSize: 10 }} className="text-gray-400">{item.sub}</p></div></div>
+                            <ChevronRight size={15} />
+                        </div>
+                    );
+                })}
+            </div>
+            <NavBar active={S.PROFILE} go={go} />
+        </div>
+    );
+}
+
+/* ---- Flow Overview ---- */
+function FlowOverview({ go }) {
+    var flow = [
+        { phase: 'Onboarding', color: 'from-green-400 to-green-600', items: [
+            { id: S.SPLASH, label: 'Splash Screen', desc: 'App branding + tagline' },
+            { id: S.OB1, label: 'Onboard 1', desc: 'Carbon route comparison' },
+            { id: S.OB2, label: 'Onboard 2', desc: 'Footprint tracking' },
+            { id: S.OB3, label: 'Onboard 3', desc: 'Rewards & gamification' },
+        ]},
+        { phase: 'Registration', color: 'from-blue-400 to-blue-600', items: [
+            { id: S.SIGNUP, label: 'Sign Up', desc: 'Account + user type' },
+            { id: S.OCTOPUS, label: 'Link Octopus', desc: 'Auto-track transport' },
+        ]},
+        { phase: 'Core Features', color: 'from-emerald-400 to-teal-600', items: [
+            { id: S.HOME, label: 'Home', desc: 'Dashboard hub' },
+            { id: S.MAP, label: 'Map Service', desc: 'Route planning' },
+            { id: S.ROUTES, label: 'Route Compare', desc: 'CO₂ per route' },
+            { id: S.CARBON, label: 'Carbon Tracker', desc: 'Footprint breakdown' },
+            { id: S.REPORT, label: 'Weekly Report', desc: 'Insights + sharing' },
+        ]},
+        { phase: 'Engagement', color: 'from-yellow-400 to-orange-500', items: [
+            { id: S.REWARDS, label: 'Rewards', desc: 'Earn + redeem' },
+            { id: S.CHALLENGES, label: 'Challenges', desc: 'Daily/weekly goals' },
+            { id: S.LEADER, label: 'Leaderboard', desc: 'Social ranking' },
+            { id: S.PROFILE, label: 'Profile', desc: 'Settings & stats' },
+        ]},
+    ];
+    return (
+        <div className="bg-white p-4 space-y-4 rounded-xl">
+            <div className="text-center"><h2 className="text-base font-bold text-gray-800">📱 Complete User Flow Map</h2><p style={{ fontSize: 11 }} className="text-gray-500">Click any screen to preview the UI mockup</p></div>
+            {flow.map(function(phase, pi) {
+                return (
+                    <div key={pi}>
+                        <div className={'bg-gradient-to-r ' + phase.color + ' text-white text-xs font-bold px-3 py-1.5 rounded-lg inline-block mb-2'}>{phase.phase}</div>
+                        <div className="flex flex-wrap gap-2">
+                            {phase.items.map(function(item, i) {
+                                return (
+                                    <React.Fragment key={item.id}>
+                                        <button onClick={function(){go(item.id);}} className="bg-gray-50 hover:bg-green-50 border border-gray-200 hover:border-green-400 rounded-lg px-3 py-2 text-left transition-colors">
+                                            <p style={{ fontSize: 11 }} className="font-semibold text-gray-800">{item.label}</p>
+                                            <p style={{ fontSize: 9 }} className="text-gray-400">{item.desc}</p>
+                                        </button>
+                                        {i < phase.items.length - 1 && <span className="text-gray-300 flex items-center text-xs">→</span>}
+                                    </React.Fragment>
+                                );
+                            })}
+                        </div>
+                        {pi < flow.length - 1 && <div className="text-center text-gray-300 text-lg mt-1">↓</div>}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+/* ---- Phone Frame ---- */
+function PhoneFrame({ children, title }) {
+    return (
+        <div className="flex flex-col items-center">
+            {title && <p className="text-xs font-semibold text-gray-500 mb-1 text-center">{title}</p>}
+            <div className="bg-gray-900 rounded-3xl p-2 shadow-2xl" style={{ width: 280 }}>
+                <div className="bg-white rounded-2xl overflow-hidden" style={{ height: 520 }}>
+                    <div className="bg-gray-900 text-white text-center py-0.5 flex justify-between px-4" style={{ fontSize: 10 }}>
+                        <span>9:41</span><span>●●● 🔋</span>
+                    </div>
+                    <div className="overflow-y-auto" style={{ height: 502 }}>{children}</div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+/* ---- Screen Names ---- */
+var NAMES = {};
+NAMES[S.SPLASH] = 'Splash';
+NAMES[S.OB1] = 'Onboard 1';
+NAMES[S.OB2] = 'Onboard 2';
+NAMES[S.OB3] = 'Onboard 3';
+NAMES[S.SIGNUP] = 'Sign Up';
+NAMES[S.OCTOPUS] = 'Link Octopus';
+NAMES[S.HOME] = 'Home Dashboard';
+NAMES[S.MAP] = 'Map Service';
+NAMES[S.ROUTES] = 'Route Comparison';
+NAMES[S.CARBON] = 'Carbon Dashboard';
+NAMES[S.REPORT] = 'Weekly Report';
+NAMES[S.REWARDS] = 'Rewards';
+NAMES[S.CHALLENGES] = 'Challenges & Badges';
+NAMES[S.LEADER] = 'Leaderboard';
+NAMES[S.PROFILE] = 'Profile';
+
+/* ---- Error Boundary ---- */
+class ErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+    static getDerivedStateFromError(error) {
+        return { hasError: true, error: error };
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div style={{ padding: 20, color: 'red', fontFamily: 'monospace' }}>
+                    <h2>Something went wrong</h2>
+                    <pre style={{ fontSize: 12, whiteSpace: 'pre-wrap' }}>{this.state.error && this.state.error.toString()}</pre>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
+
+/* ---- Main App ---- */
+function App() {
+    var screenState = useState(S.FLOWMAP);
+    var screen = screenState[0];
+    var setScreen = screenState[1];
+
+    function go(s) { setScreen(s); }
+
+    function renderScreen() {
+        switch (screen) {
+            case S.SPLASH: return <SplashScreen go={go} />;
+            case S.OB1: return <Onboard go={go} step={0} />;
+            case S.OB2: return <Onboard go={go} step={1} />;
+            case S.OB3: return <Onboard go={go} step={2} />;
+            case S.SIGNUP: return <SignupScreen go={go} />;
+            case S.OCTOPUS: return <OctopusScreen go={go} />;
+            case S.HOME: return <HomeScreen go={go} />;
+            case S.MAP: return <MapScreen go={go} />;
+            case S.ROUTES: return <RouteResults go={go} />;
+            case S.CARBON: return <CarbonDash go={go} />;
+            case S.REPORT: return <WeeklyReport go={go} />;
+            case S.REWARDS: return <RewardsScreen go={go} />;
+            case S.CHALLENGES: return <ChallengesScreen go={go} />;
+            case S.LEADER: return <LeaderboardScreen go={go} />;
+            case S.PROFILE: return <ProfileScreen go={go} />;
+            default: return <HomeScreen go={go} />;
+        }
+    }
+
+    var nameEntries = [];
+    for (var k in NAMES) {
+        nameEntries.push([k, NAMES[k]]);
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-100 p-3">
+            <div className="max-w-5xl mx-auto">
+                <div className="text-center mb-3">
+                    <h1 className="text-lg font-bold text-gray-800">GreenRoute HK — User Flow Demonstration</h1>
+                    <p className="text-xs text-gray-500">Interactive Mobile App Prototype · SDG 11 Low-Carbon Commuting</p>
+                </div>
+                <div className="flex flex-wrap justify-center gap-1 mb-3">
+                    <button onClick={function(){setScreen(S.FLOWMAP);}} className={screen === S.FLOWMAP ? 'text-xs px-2 py-1 rounded-md font-medium bg-gray-800 text-white' : 'text-xs px-2 py-1 rounded-md font-medium bg-white text-gray-600 border border-gray-200'}>📋 Flow Map</button>
+                    {nameEntries.map(function(entry) {
+                        var k = entry[0];
+                        var v = entry[1];
+                        return (
+                            <button key={k} onClick={function(){setScreen(k);}} className={screen === k ? 'text-xs px-2 py-1 rounded-md font-medium bg-green-600 text-white' : 'text-xs px-2 py-1 rounded-md font-medium bg-white text-gray-600 border border-gray-200'}>{v}</button>
+                        );
+                    })}
+                </div>
+                {screen === S.FLOWMAP ? (
+                    <FlowOverview go={go} />
+                ) : (
+                    <div className="flex justify-center">
+                        <PhoneFrame title={NAMES[screen]}>
+                            <div key={screen} className="anim-fade">
+                                {renderScreen()}
+                            </div>
+                        </PhoneFrame>
+                    </div>
+                )}
+                <div className="mt-3 bg-white rounded-xl p-4 shadow-sm max-w-2xl mx-auto">
+                    <h3 className="font-bold text-sm text-gray-800 mb-1">Navigation Guide</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">Use the screen tabs above or click directly inside the phone mockup. The Home screen's quick-access buttons navigate to Map, Carbon, Challenges, and Leaderboard. The persistent bottom tab bar provides access to all main sections from any screen. The complete flow proceeds: Splash → Onboarding (×3) → Sign Up → Octopus Link → Home → all core features.</p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+/* ---- Render ---- */
+try {
+    var root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+        React.createElement(ErrorBoundary, null,
+            React.createElement(App, null)
+        )
+    );
+} catch(err) {
+    document.getElementById('root').innerHTML = '<div style="padding:20px;color:red;font-family:monospace;"><h2>Failed to start app</h2><pre>' + err.message + '</pre></div>';
+}
+</script>
+
+</body>
+</html>
